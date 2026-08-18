@@ -1,0 +1,33 @@
+name: Free BotStart
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 */4 * * *'
+jobs:
+  order:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Place Free BotStart
+      run: |
+        pip install requests -q
+        python3 -c "
+import requests,time,warnings
+warnings.filterwarnings('ignore')
+T='https://t.me/@Maconetbot'
+U='https://core.smm.plus/api/free-service/order'
+H={'Content-Type':'application/json','Origin':'https://smm.plus','Referer':'https://smm.plus/free-telegram-botstart'}
+ok=0
+for i in range(30):
+    r=requests.post(U,json={'service':'telegram_bot_start','link':T,'quantity':100},headers=H,verify=False,timeout=10)
+    d=r.json()
+    if d.get('ok'):
+        ok+=1
+        print(f'OK {ok*100} botstart')
+    else:
+        rt=d.get('retry_after_seconds',60)
+        print(f'Wait {rt}s: {d}')
+        time.sleep(min(rt,120))
+    time.sleep(5)
+print(f'Total: {ok*100} starts for https://t.me/@Maconetbot')
+"
